@@ -68,7 +68,7 @@ print(Fore.WHITE + "CNN Model Initialized.")
 
 # %% Model training
 start_time = time.time()
-for epoch in range(5):
+for epoch in range(20):
     running_loss = 0.0
     for i, data in enumerate(loader_train, 0):
         inputs, labels = data
