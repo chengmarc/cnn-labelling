@@ -36,8 +36,8 @@ transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5
 dataset_train = MNIST(root=script_dir, train=True, transform=transform, download=True)
 dataset_test = MNIST(root=script_dir, train=True, transform=transform, download=True)
 
-loader_train = DataLoader(dataset=dataset_train, batch_size=256, shuffle=True)
-loader_test = DataLoader(dataset=dataset_test, batch_size=256, shuffle=True)
+loader_train = DataLoader(dataset=dataset_train, batch_size=32, shuffle=True)
+loader_test = DataLoader(dataset=dataset_test, batch_size=32, shuffle=True)
 del script_path, script_dir, dataset_train, dataset_test
 
 print(Fore.WHITE + "Data loaded.")
