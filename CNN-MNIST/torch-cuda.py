@@ -27,6 +27,17 @@ except:
     input('Press any key to quit.')
     exit()
 
+# %% Checking if CUDA is available
+if torch.cuda.is_available():
+    device = torch.device("cuda:0")
+    print(Fore.GREEN + "Detected GPU, connected successfully to CUDA.")
+else:
+    device = torch.device("cpu")
+    print(Fore.YELLOW + "Caution: no GPU detected.")
+    print(Fore.YELLOW + "This issue may be due to the fact that your computer does not have an Nvidia GPU or does not have the correct version of CUDA.")
+    print(Fore.YELLOW + "Consequence: torch will use CPU for computation.")
+    print(Fore.YELLOW + "Consequence: model training is expected to be slow.")
+
 # %% Load MNIST data into system memory
 script_path = os.path.realpath(__file__)
 script_dir = os.path.dirname(script_path)
@@ -61,7 +72,7 @@ class CNN(nn.Module):
         x = self.fc2(x)
         return x
 
-model = CNN()
+model = CNN().to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 print(Fore.WHITE + "CNN Model Initialized.")
@@ -72,6 +83,8 @@ for epoch in range(5):
     running_loss = 0.0
     for i, data in enumerate(loader_train, 0):
         inputs, labels = data
+        inputs = inputs.to(device=device)
+        labels = labels.to(device=device)
 
         scores = model(inputs)
         loss = criterion(scores, labels)
@@ -106,6 +119,9 @@ def check_accuracy(loader, model) -> float:
 
     with torch.no_grad():
         for x, y in loader:
+            x = x.to(device)
+            y = y.to(device)
+
             scores = model(x)
             _, predictions = scores.max(1)
             num_correct += (predictions == y).sum()
@@ -132,7 +148,7 @@ while boolean == 'Y' or boolean == 'y':
 
     modified_image = Image.open(image_path).convert('L')
     modified_image = transform(modified_image)
-    modified_image = modified_image.unsqueeze(0)
+    modified_image = modified_image.unsqueeze(0).to(device)
 
     with torch.no_grad():
         model.eval()
