@@ -47,39 +47,47 @@ transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5
 dataset_train = MNIST(root=script_dir, train=True, transform=transform, download=True)
 dataset_test = MNIST(root=script_dir, train=True, transform=transform, download=True)
 
-loader_train = DataLoader(dataset=dataset_train, batch_size=32, shuffle=True)
-loader_test = DataLoader(dataset=dataset_test, batch_size=32, shuffle=True)
+loader_train = DataLoader(dataset=dataset_train, batch_size=64, shuffle=True)
+loader_test = DataLoader(dataset=dataset_test, batch_size=64, shuffle=True)
 del script_path, script_dir, dataset_train, dataset_test
 
 print(Fore.WHITE + "Data loaded.")
 
 # %% Initialize CNN model
+
+# ### Kernel Size / Stride / Padding ###
+# Kernel size determine the size of the filter, which is usually an odd integer.
+# - If the input size is a*b and the kernel size is 2n+1,
+# - then the output size will be (a-2n)*(b-2n) assuming a,b greater than 2n.
+# Stride determine how fast (how many pixel at a time) the filter will move horizontally and vertically.
+# Padding determine how many pixels the original image should extend at the border.
+
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
-        self.conv1 = nn.Conv2d(1, 16, 3, 1)
-        self.conv2 = nn.Conv2d(16, 32, 3, 1)
-        self.fc1 = nn.Linear(32 * 5 * 5, 128)
-        self.fc2 = nn.Linear(128, 10)
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=4, kernel_size=5, stride=1, padding=0)
+        self.conv2 = nn.Conv2d(in_channels=4, out_channels=16, kernel_size=5, stride=1, padding=0)
+        self.fc1 = nn.Linear(in_features=16*20*20, out_features=400)
+        self.fc2 = nn.Linear(in_features=400, out_features=100)
+        self.fc3 = nn.Linear(in_features=100, out_features=10)
 
     def forward(self, x):
         x = nn.functional.relu(self.conv1(x))
-        x = nn.functional.max_pool2d(x, 2, 2)
         x = nn.functional.relu(self.conv2(x))
-        x = nn.functional.max_pool2d(x, 2, 2)
-        x = x.view(-1, 32 * 5 * 5)
+        x = x.view(-1, 16*20*20)
         x = nn.functional.relu(self.fc1(x))
-        x = self.fc2(x)
+        x = nn.functional.relu(self.fc2(x))
+        x = self.fc3(x)
         return x
 
 model = CNN().to(device)
-criterion = nn.CrossEntropyLoss()
+criterion = nn.CrossEntropyLoss().to(device)
 optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 print(Fore.WHITE + "CNN Model Initialized.")
 
 # %% Model training
 start_time = time.time()
-for epoch in range(20):
+for epoch in range(5):
     running_loss = 0.0
     for i, data in enumerate(loader_train, 0):
         inputs, labels = data
@@ -108,8 +116,8 @@ del start_time, end_time, total_time, epoch, i, data, inputs, labels, scores, lo
 #Epochs             - 5
 #Batchsize          - 64
 #Batches            - 938
-#CPU: i5-4670K      - about 110 seconds
 #GPU: GTX-1060 6GB  - about 70 seconds
+#GPU: RTX-3060 12GB - about 40 seconds
 
 # %% Model testing
 def check_accuracy(loader, model) -> float:
