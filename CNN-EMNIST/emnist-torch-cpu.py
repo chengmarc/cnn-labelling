@@ -46,14 +46,14 @@ the NIST, are for the letters C, I, J, K, L, M, O, P, S, U, V, W, X, Y and Z."
 
 source: https://arxiv.org/pdf/1702.05373v1.pdf
 """
-dictionary = {0:"0", 1:"1", 2:"2", 3:"3", 4:"4", 5:"5", 6:"6", 7:"7", 8:"8", 9:"9",
-              10:"A", 11:"B", 12:"C/c", 13:"D", 14:"E", 15:"F", 16:"G", 17:"H", 18:"I/i",
-              19:"J/j", 20:"K/k", 21:"L/l", 22:"M/m", 23:"N", 24:"O/o", 25:"P/p", 26:"Q",
-              27:"R", 28:"S/s", 29:"T", 30:"U/u", 31:"V/v", 32:"W/w", 33:"X/x", 34:"Y/y", 35:"Z/z",
-              36:"a", 37:"b", 38:"d", 39:"e", 40:"f", 41:"g", 42:"h", 43:"n", 44:"q", 45:"r", 46:"t"}
+dictionary = {0:"0  ", 1:"1  ", 2:"2  ", 3:"3  ", 4:"4  ", 5:"5  ", 6:"6  ", 7:"7  ", 8:"8  ", 9:"9  ",
+              10:"A  ", 11:"B  ", 12:"C/c", 13:"D  ", 14:"E  ", 15:"F  ", 16:"G  ", 17:"H  ", 18:"I/i",
+              19:"J/j", 20:"K/k", 21:"L/l", 22:"M/m", 23:"N  ", 24:"O/o", 25:"P/p", 26:"Q  ", 27:"R  ",
+              28:"S/s", 29:"T  ", 30:"U/u", 31:"V/v", 32:"W/w", 33:"X/x", 34:"Y/y", 35:"Z/z", 36:"a  ",
+              37:"b  ", 38:"d  ", 39:"e  ", 40:"f  ", 41:"g  ", 42:"h  ", 43:"n  ", 44:"q  ", 45:"r  ", 46:"t  "}
 
-dataset_train = EMNIST(root=script_dir, split="bymerge", train=True, transform=transform, download=False)
-dataset_test = EMNIST(root=script_dir, split="bymerge", train=False, transform=transform, download=False)
+dataset_train = EMNIST(root=script_dir, split="bymerge", train=True, transform=transform, download=True)
+dataset_test = EMNIST(root=script_dir, split="bymerge", train=False, transform=transform, download=True)
 
 loader_train = DataLoader(dataset=dataset_train, batch_size=256, shuffle=True)
 loader_test = DataLoader(dataset=dataset_test, batch_size=256, shuffle=True)
@@ -67,7 +67,7 @@ for i in range(1000):
     image_slice = dataset_train[i][0].numpy()
     plt.imshow(image_slice[0].transpose())
     plt.show()
-del dataset_train, dataset_test
+del i, image_slice, dataset_train, dataset_test
 
 # %% Initialize CNN model
 
