@@ -193,4 +193,5 @@ while boolean == 'Y' or boolean == 'y':
     for i in range(0, 47):
         print(Fore.WHITE, dictionary[i], ":", softmax_scores[i])
     print("")
+    del i, boolean, image_path, image, modified_image
     boolean = input(Fore.WHITE + "Do you want to write another character? (Y/N)")
