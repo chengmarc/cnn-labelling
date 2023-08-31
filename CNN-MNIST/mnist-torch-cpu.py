@@ -33,8 +33,8 @@ script_dir = os.path.dirname(script_path)
 
 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
 
-dataset_train = MNIST(root=script_dir, train=True, transform=transform, download=True)
-dataset_test = MNIST(root=script_dir, train=True, transform=transform, download=True)
+dataset_train = MNIST(root=script_dir, train=True, transform=transform, download=False)
+dataset_test = MNIST(root=script_dir, train=False, transform=transform, download=False)
 
 loader_train = DataLoader(dataset=dataset_train, batch_size=64, shuffle=True)
 loader_test = DataLoader(dataset=dataset_test, batch_size=64, shuffle=True)
