@@ -96,7 +96,7 @@ del start_time, end_time, total_time, epoch, i, data, inputs, labels, scores, lo
 #Batchsize          - 64
 #Batches            - 938
 #CPU: i5-4670K      - about 110 seconds
-#GPU: GTX-1060 6GB  - about 70 seconds
+#CPU: i7-12700      - about 110 seconds
 
 # %% Model testing
 def check_accuracy(loader, model) -> float:

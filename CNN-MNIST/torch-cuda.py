@@ -47,8 +47,8 @@ transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5
 dataset_train = MNIST(root=script_dir, train=True, transform=transform, download=True)
 dataset_test = MNIST(root=script_dir, train=True, transform=transform, download=True)
 
-loader_train = DataLoader(dataset=dataset_train, batch_size=32, shuffle=True)
-loader_test = DataLoader(dataset=dataset_test, batch_size=32, shuffle=True)
+loader_train = DataLoader(dataset=dataset_train, batch_size=64, shuffle=True)
+loader_test = DataLoader(dataset=dataset_test, batch_size=64, shuffle=True)
 del script_path, script_dir, dataset_train, dataset_test
 
 print(Fore.WHITE + "Data loaded.")
@@ -79,7 +79,7 @@ print(Fore.WHITE + "CNN Model Initialized.")
 
 # %% Model training
 start_time = time.time()
-for epoch in range(20):
+for epoch in range(5):
     running_loss = 0.0
     for i, data in enumerate(loader_train, 0):
         inputs, labels = data
@@ -108,8 +108,8 @@ del start_time, end_time, total_time, epoch, i, data, inputs, labels, scores, lo
 #Epochs             - 5
 #Batchsize          - 64
 #Batches            - 938
-#CPU: i5-4670K      - about 110 seconds
 #GPU: GTX-1060 6GB  - about 70 seconds
+#GPU: RTX-3060 12GB - about 40 seconds
 
 # %% Model testing
 def check_accuracy(loader, model) -> float:
