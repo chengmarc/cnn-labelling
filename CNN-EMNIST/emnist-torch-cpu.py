@@ -13,7 +13,8 @@ try:
     import torchvision.transforms as transforms
 
     # Import libraries for utilities
-    import os, time, subprocess
+    import os, time, random, subprocess
+    import matplotlib.pyplot as plt
     from PIL import Image
     from torch.utils.data import DataLoader
     from torchvision.datasets import EMNIST
@@ -23,21 +24,19 @@ try:
 
 except:
     print("Dependencies missing, please use pip to install all dependencies:")
-    print("torch, torchvision, os, time, subprocess, PIL, colorama")
+    print("torch, torchvision, os, time, random, subprocess, matplotlib, PIL, colorama")
     input('Press any key to quit.')
     exit()
-
+    
 # %% Load MNIST data into system memory
-script_path = os.path.realpath(__file__)
-script_dir = os.path.dirname(script_path)
+directory = os.path.dirname(os.path.realpath(__file__))
 
 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
 
-"""
-By Class: This represents the most useful organization from a classification perspective as it contains the seg-
-mented digits and characters arranged by class. There are 62 classes comprising [0-9], [a-z] and [A-Z]. The data is
-also split into a suggested training and testing set.
+dataset_train = EMNIST(root=directory, split="bymerge", train=True, transform=transform, download=True)
+dataset_test = EMNIST(root=directory, split="bymerge", train=False, transform=transform, download=True)
 
+"""
 By Merge: This data hierarchy addresses an interesting problem in the classification of handwritten digits, which
 is the similarity between certain uppercase and lowercase letters. Indeed, these effects are often plainly visible when
 examining the confusion matrix resulting from the full classification task on the By Class dataset. This variant
@@ -52,22 +51,26 @@ dictionary = {0:"0  ", 1:"1  ", 2:"2  ", 3:"3  ", 4:"4  ", 5:"5  ", 6:"6  ", 7:"
               28:"S/s", 29:"T  ", 30:"U/u", 31:"V/v", 32:"W/w", 33:"X/x", 34:"Y/y", 35:"Z/z", 36:"a  ",
               37:"b  ", 38:"d  ", 39:"e  ", 40:"f  ", 41:"g  ", 42:"h  ", 43:"n  ", 44:"q  ", 45:"r  ", 46:"t  "}
 
-dataset_train = EMNIST(root=script_dir, split="bymerge", train=True, transform=transform, download=True)
-dataset_test = EMNIST(root=script_dir, split="bymerge", train=False, transform=transform, download=True)
-
 loader_train = DataLoader(dataset=dataset_train, batch_size=256, shuffle=True)
 loader_test = DataLoader(dataset=dataset_test, batch_size=256, shuffle=True)
-del script_path, script_dir
 
-print(Fore.WHITE + "Data loaded.")
+print(Fore.WHITE + "EMNIST dataset loaded.")
 
-# %% Visualize the first 1000 characters
-import matplotlib.pyplot as plt
-for i in range(1000):
-    image_slice = dataset_train[i][0].numpy()
-    plt.imshow(image_slice[0].transpose())
-    plt.show()
-del i, image_slice, dataset_train, dataset_test
+# %% Visualization of random samples
+visualize = True
+if visualize:
+    index, fig = 0, plt.figure(figsize=(5, 5))
+    for i in [random.randint(0, len(dataset_train)-1) for j in range(25)]:
+        index += 1
+        fig.add_subplot(5, 5, index)
+        plt.xticks([])
+        plt.yticks([])
+        
+        image_slice = dataset_train[i][0].numpy()
+        plt.imshow(image_slice[0].transpose())            
+    print(Fore.WHITE + "Visualizing 25 random samples, close the image to continue...")
+    plt.show()    
+del visualize, i, index, fig, image_slice, dataset_test, dataset_train
 
 # %% Initialize CNN model
 
@@ -102,30 +105,44 @@ optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 print(Fore.WHITE + "CNN Model Initialized.")
 
 # %% Model training
-start_time = time.time()
-for epoch in range(5):
-    running_loss = 0.0
-    for i, data in enumerate(loader_train, 0):
-        inputs, labels = data
+def train_model(loader, model) -> nn.Module:
+    start_time = time.time()
+    for epoch in range(5):
+        running_loss = 0.0
+        for i, data in enumerate(loader, 0):
+            inputs, labels = data
+            inputs = inputs
+            labels = labels
 
-        scores = model(inputs)
-        loss = criterion(scores, labels)
+            scores = model(inputs)
+            loss = criterion(scores, labels)
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        running_loss += loss.item()      
-        if i % 100 == 99:
-            average_loss = running_loss / 100
-            print(f"Epoch {epoch+1}, Batch {i+1}, Loss: {average_loss:.3f}")
+            running_loss += loss.item()      
+            if i % 100 == 99:
+                average_loss = running_loss / 100
+                print(f"Epoch {epoch+1}, Batch {i+1}, Loss: {average_loss:.3f}")
 
-end_time = time.time()
-total_time = end_time - start_time
-print(Fore.GREEN + "Model training finished.")
-print(Fore.GREEN + f"Total training time: {total_time:.2f} seconds")
-del start_time, end_time, total_time, epoch, i, data, inputs, labels, scores, loss, average_loss
+    end_time = time.time()
+    total_time = end_time - start_time
+    print(Fore.GREEN + f"Total training time: {total_time:.2f} seconds")
+    return model
 
+# %% Main Execution
+if not os.path.isfile(directory + '/pre_trained_model.pt'):
+    print(Fore.WHITE + "No pre-trained model detected.")
+    print(Fore.WHITE + "Start training...")
+    model = train_model(loader_train, model)       
+    torch.save(model.state_dict(), directory + '/pre_trained_model.pt')
+    print(Fore.GREEN + "Model have been saved to the default location.")
+else:
+    print(Fore.GREEN + "Pre-trained model detected.")
+    model.load_state_dict(torch.load(directory + '/pre_trained_model.pt'))
+    print(Fore.GREEN + "Pre-trained model loaded.")
+    
 # %% Model testing
 def check_accuracy(loader, model) -> float:
     num_correct = 0
@@ -133,7 +150,7 @@ def check_accuracy(loader, model) -> float:
     model.eval()
 
     with torch.no_grad():
-        for x, y in loader:
+        for x, y in loader:            
             scores = model(x)
             _, predictions = scores.max(1)
             num_correct += (predictions == y).sum()
@@ -158,7 +175,9 @@ while boolean == 'Y' or boolean == 'y':
     process = subprocess.Popen(['mspaint', image_path])
     process.wait()
 
-    modified_image = Image.open(image_path).transpose(Image.TRANSPOSE).convert('L')
+    modified_image = Image.open(image_path)
+    modified_image = modified_image.transpose(Image.TRANSPOSE)
+    modified_image = modified_image.convert('L')
     modified_image = transform(modified_image)
     modified_image = modified_image.unsqueeze(0)
 
