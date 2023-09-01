@@ -13,7 +13,8 @@ try:
     import torchvision.transforms as transforms
 
     # Import libraries for utilities
-    import os, time, subprocess
+    import os, time, random, subprocess
+    import matplotlib.pyplot as plt
     from PIL import Image
     from torch.utils.data import DataLoader
     from torchvision.datasets import MNIST
@@ -23,35 +24,38 @@ try:
 
 except:
     print("Dependencies missing, please use pip to install all dependencies:")
-    print("torch, torchvision, os, time, subprocess, PIL, colorama")
+    print("torch, torchvision, os, time, random, subprocess, matplotlib, PIL, colorama")
     input('Press any key to quit.')
     exit()
 
-# %% Checking if CUDA is available
-if torch.cuda.is_available():
-    device = torch.device("cuda:0")
-    print(Fore.GREEN + "Detected GPU, connected successfully to CUDA.")
-else:
-    device = torch.device("cpu")
-    print(Fore.YELLOW + "Caution: no GPU detected.")
-    print(Fore.YELLOW + "This issue may be due to the fact that your computer does not have an Nvidia GPU or does not have the correct version of CUDA.")
-    print(Fore.YELLOW + "Consequence: torch will use CPU for computation.")
-    print(Fore.YELLOW + "Consequence: model training is expected to be slow.")
-
 # %% Load MNIST data into system memory
-script_path = os.path.realpath(__file__)
-script_dir = os.path.dirname(script_path)
+directory = os.path.dirname(os.path.realpath(__file__))
 
 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
 
-dataset_train = MNIST(root=script_dir, train=True, transform=transform, download=True)
-dataset_test = MNIST(root=script_dir, train=True, transform=transform, download=True)
+dataset_train = MNIST(root=directory, train=True, transform=transform, download=True)
+dataset_test = MNIST(root=directory, train=False, transform=transform, download=True)
 
 loader_train = DataLoader(dataset=dataset_train, batch_size=64, shuffle=True)
 loader_test = DataLoader(dataset=dataset_test, batch_size=64, shuffle=True)
-del script_path, script_dir, dataset_train, dataset_test
 
-print(Fore.WHITE + "Data loaded.")
+print(Fore.WHITE + "MNIST dataset loaded.")
+
+# %% Visualization of random samples
+visualize = True
+if visualize:
+    index, fig = 0, plt.figure(figsize=(5, 5))
+    for i in [random.randint(0, len(dataset_train)-1) for j in range(25)]:
+        index += 1
+        fig.add_subplot(5, 5, index)
+        plt.xticks([])
+        plt.yticks([])
+        
+        image_slice = dataset_train[i][0].numpy()
+        plt.imshow(image_slice[0])            
+    print(Fore.WHITE + "Visualizing 25 random samples, close the image to continue...")
+    plt.show()    
+del visualize, i, index, fig, image_slice, dataset_test, dataset_train
 
 # %% Initialize CNN model
 class CNN(nn.Module):
@@ -72,45 +76,55 @@ class CNN(nn.Module):
         x = self.fc2(x)
         return x
 
-model = CNN().to(device)
+model = CNN()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 print(Fore.WHITE + "CNN Model Initialized.")
 
 # %% Model training
-start_time = time.time()
-for epoch in range(5):
-    running_loss = 0.0
-    for i, data in enumerate(loader_train, 0):
-        inputs, labels = data
-        inputs = inputs.to(device=device)
-        labels = labels.to(device=device)
+def train_model(loader, model) -> nn.Module:
+    start_time = time.time()
+    for epoch in range(5):
+        running_loss = 0.0
+        for i, data in enumerate(loader, 0):
+            inputs, labels = data
 
-        scores = model(inputs)
-        loss = criterion(scores, labels)
+            scores = model(inputs)
+            loss = criterion(scores, labels)
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        running_loss += loss.item()      
-        if i % 100 == 99:
-            average_loss = running_loss / 100
-            print(f"Epoch {epoch+1}, Batch {i+1}, Loss: {average_loss:.3f}")
+            running_loss += loss.item()      
+            if i % 100 == 99:
+                average_loss = running_loss / 100
+                print(f"Epoch {epoch+1}, Batch {i+1}, Loss: {average_loss:.3f}")
 
-end_time = time.time()
-total_time = end_time - start_time
-print(Fore.GREEN + "Model training finished.")
-print(Fore.GREEN + f"Total training time: {total_time:.2f} seconds")
-del start_time, end_time, total_time, epoch, i, data, inputs, labels, scores, loss, average_loss
+    end_time = time.time()
+    total_time = end_time - start_time
+    print(Fore.GREEN + f"Total training time: {total_time:.2f} seconds")
+    return model
 
 #Training Time Testing
 #Epochs             - 5
 #Batchsize          - 64
 #Batches            - 938
-#GPU: GTX-1060 6GB  - about 70 seconds
-#GPU: RTX-3060 12GB - about 40 seconds
+#CPU: i5-4670K      - about 110 seconds
+#CPU: i7-12700      - about 110 seconds
 
+# %% Main Execution
+if not os.path.isfile(directory + '/pre_trained_model.pt'):
+    print(Fore.WHITE + "No pre-trained model detected.")
+    print(Fore.WHITE + "Start training...")
+    model = train_model(loader_train, model)       
+    torch.save(model.state_dict(), directory + '/pre_trained_model.pt')
+    print(Fore.GREEN + "Model have been saved to the default location.")
+else:
+    print(Fore.GREEN + "Pre-trained model detected.")
+    model.load_state_dict(torch.load(directory + '/pre_trained_model.pt'))
+    print(Fore.GREEN + "Pre-trained model loaded.")
+    
 # %% Model testing
 def check_accuracy(loader, model) -> float:
     num_correct = 0
@@ -119,9 +133,6 @@ def check_accuracy(loader, model) -> float:
 
     with torch.no_grad():
         for x, y in loader:
-            x = x.to(device)
-            y = y.to(device)
-
             scores = model(x)
             _, predictions = scores.max(1)
             num_correct += (predictions == y).sum()
@@ -135,7 +146,7 @@ check_accuracy(loader_test, model)
 
 # %% Model prediction
 boolean = 'Y'
-print(Fore.WHITE + "Please write a number in MS Paint and save it.")
+print(Fore.WHITE + "Please write a character in MS Paint and save it.")
 
 while boolean == 'Y' or boolean == 'y':
 
@@ -146,9 +157,10 @@ while boolean == 'Y' or boolean == 'y':
     process = subprocess.Popen(['mspaint', image_path])
     process.wait()
 
-    modified_image = Image.open(image_path).convert('L')
+    modified_image = Image.open(image_path)
+    modified_image = modified_image.convert('L')
     modified_image = transform(modified_image)
-    modified_image = modified_image.unsqueeze(0).to(device)
+    modified_image = modified_image.unsqueeze(0)
 
     with torch.no_grad():
         model.eval()
@@ -157,9 +169,10 @@ while boolean == 'Y' or boolean == 'y':
     softmax_scores = F.softmax(output, dim=1)
     softmax_scores = softmax_scores.tolist()[0]
     softmax_scores = ["{:0>5.2f}%".format(score*100) for score in softmax_scores]
-
-    print(Fore.WHITE + "Predicted number:")
+    
+    print(Fore.WHITE + "Predicted character:")
     for i in range(0, 10):
         print(Fore.WHITE, i, ":", softmax_scores[i])
     print("")
-    boolean = input(Fore.WHITE + "Do you want to write another number? (Y/N)")
+    del i, boolean, image_path, image, modified_image
+    boolean = input(Fore.WHITE + "Do you want to write another character? (Y/N)")
