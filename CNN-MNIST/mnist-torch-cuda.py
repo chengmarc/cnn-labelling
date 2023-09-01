@@ -135,7 +135,7 @@ if not os.path.isfile(directory + '/pre_trained_model.pt'):
     print(Fore.GREEN + "Model have been saved to the default location.")
 else:
     print(Fore.GREEN + "Pre-trained model detected.")
-    model.load_state_dict(torch.load(directory + '/pre_trained_model.pt'))
+    model.load_state_dict(torch.load(directory + '/pre_trained_model.pt', map_location=device))
     print(Fore.GREEN + "Pre-trained model loaded.")
     
 # %% Model testing
