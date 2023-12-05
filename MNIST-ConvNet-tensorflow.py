@@ -42,7 +42,7 @@ def load_label(path_label):
 # %% Load MNIST data into system memory
 script_path = os.path.realpath(__file__)
 script_dir = os.path.dirname(script_path)
-import_path = script_dir + r"\MNIST\raw"
+import_path = script_dir + r"\MNIST-ConvNet\data\MNIST\raw"
 
 X_train = load_dataset(import_path + '\\' + 'train-images-idx3-ubyte.gz') / 255.0
 Y_train = load_label(import_path + '\\' + 'train-labels-idx1-ubyte.gz')
