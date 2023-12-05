@@ -3,7 +3,7 @@
 @author: chengmarc
 @github: https://github.com/chengmarc
 
-[1] Yann LeCun, Patrick Haffner, Léon Bottou, Yoshua Bengio.
+[1] Yann LeCun, Patrick Haffner, Léon Bottou, and Yoshua Bengio.
 
     Object Recognition with Gradient Based Learning
     http://yann.lecun.com/exdb/publis/pdf/lecun-99.pdf

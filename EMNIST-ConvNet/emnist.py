@@ -3,7 +3,7 @@
 @author: chengmarc
 @github: https://github.com/chengmarc
 
-[1] Gregory Cohen, Saeed Afshar, Jonathan Tapson, and Andre van Schaik
+[1] Gregory Cohen, Saeed Afshar, Jonathan Tapson, and Andre van Schaik.
 
     EMNIST: an extension of MNIST to handwritten letters
     https://arxiv.org/pdf/1702.05373v1.pdf
