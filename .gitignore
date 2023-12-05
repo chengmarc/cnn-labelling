@@ -1,5 +1,4 @@
-*.pyc
-*.pt
-MNIST-CNN/data
-EMNIST-CNN/data
-CIFAR10-ResNet/data
+*/data
+*/model
+*/__venv__
+*/__pycache__

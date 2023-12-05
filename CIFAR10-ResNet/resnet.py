@@ -1,18 +1,28 @@
-"""resnet in pytorch
+# -*- coding: utf-8 -*-
+"""
+@author: chengmarc
+@github: https://github.com/chengmarc
 
+[1] Baiyu @BUPT
 
+    Practice on CIFAR100 using pytorch
+    https://github.com/weiaicunzai/pytorch-cifar100
 
-[1] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun.
+[2] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun.
 
     Deep Residual Learning for Image Recognition
     https://arxiv.org/abs/1512.03385v1
-"""
 
+"""
 import torch.nn as nn
 
-class BasicBlock(nn.Module):
-    """Basic Block for resnet 18 and resnet 34
 
+# %% Class Definitions
+
+
+class BasicBlock(nn.Module):
+    """
+    Basic Block for resnet 18 and resnet 34
     """
 
     #BasicBlock and BottleNeck block
@@ -47,11 +57,14 @@ class BasicBlock(nn.Module):
     def forward(self, x):
         return nn.ReLU(inplace=True)(self.residual_function(x) + self.shortcut(x))
 
-class BottleNeck(nn.Module):
-    """Residual block for resnet over 50 layers
 
+class BottleNeck(nn.Module):
     """
+    Residual block for resnet over 50 layers
+    """
+
     expansion = 4
+
     def __init__(self, in_channels, out_channels, stride=1):
         super().__init__()
         self.residual_function = nn.Sequential(
@@ -75,6 +88,7 @@ class BottleNeck(nn.Module):
 
     def forward(self, x):
         return nn.ReLU(inplace=True)(self.residual_function(x) + self.shortcut(x))
+
 
 class ResNet(nn.Module):
 
@@ -134,4 +148,26 @@ class ResNet(nn.Module):
         return output
 
 
+# %% Network Initializer
+
+
+def initialize_network(NET:str):
+
+    if NET not in ["ResNet18", "ResNet34", "ResNet50", "ResNet101", "ResNet152"]:
+        print("Network not found, adjust settings.")
+
+    elif NET == "ResNet18":
+        return ResNet(BasicBlock, [2, 2, 2, 2])
+
+    elif NET == "ResNet34":
+        return ResNet(BasicBlock, [3, 4, 6, 3])
+
+    elif NET == "ResNet50":
+        return ResNet(BottleNeck, [3, 4, 6, 3])
+
+    elif NET == "ResNet101":
+        return ResNet(BottleNeck, [3, 4, 23, 3])
+
+    elif NET == "ResNet152":
+        return ResNet(BottleNeck, [3, 8, 36, 3])
 

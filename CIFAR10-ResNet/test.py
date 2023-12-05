@@ -1,49 +1,51 @@
-#test.py
-#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+@author: chengmarc
+@github: https://github.com/chengmarc
 
-""" test neuron network performace
-print top1 and top5 err on test dataset
-of a model
+[1] Baiyu @BUPT
 
-author baiyu
+    Practice on CIFAR100 using pytorch
+    https://github.com/weiaicunzai/pytorch-cifar100
+
 """
 import os
-
 import torch
-import torchvision.transforms as transforms
-from torch.utils.data import DataLoader
 
 import settings
-from torchvision.datasets import CIFAR10
+import shutup
+shutup.please()
+
+
+# %% Main Execution
+
 
 if __name__ == '__main__':
 
     # Load Network
-    import resnet    
-    net, name = resnet.ResNet(resnet.BasicBlock, [2, 2, 2, 2]), "ResNet18"
+    from resnet import initialize_network
+    net = initialize_network(settings.NET)
     if settings.USE_GPU: 
         net = net.cuda()
-    
-    # Load & Transform Data
-    transform_test = transforms.Compose([transforms.ToTensor()])    
-    cifar100_test = CIFAR10(root='./data', train=False, transform=transform_test, download=True)    
-    cifar100_test_loader = DataLoader(dataset=cifar100_test, shuffle=True, num_workers=2, batch_size=16)
-    
+
+    # Load Data
+    from cifar10 import data_loader_test
+
     # Check & Load Existing Weights
     model_list = [f'./model/{x}' for x in os.listdir('./model')]
-    if model_list:        
+    if model_list:
         model_list.sort(key=lambda x: os.path.getmtime(x))
-     
+
         print(f'Loading {model_list[-1]}...')
         net.load_state_dict(torch.load(model_list[-1])) #load latest model
         net.eval()
-        
+
         correct_1 = 0.0
         correct_5 = 0.0
 
         # Evaluation
         with torch.no_grad():
-            for n_iter, (image, label) in enumerate(cifar100_test_loader):
+            for n_iter, (image, label) in enumerate(data_loader_test):
                 if settings.USE_GPU:
                     image = image.cuda()
                     label = label.cuda()
@@ -53,23 +55,22 @@ if __name__ == '__main__':
 
                 label = label.view(label.size(0), -1).expand_as(pred)
                 correct = pred.eq(label).float()
-                           
+
                 correct_1 += correct[:, :1].sum() #compute top 1
                 correct_5 += correct[:, :5].sum() #compute top 5
-                
-                print(f"Iteration: [{n_iter + 1}/{len(cifar100_test_loader)}]")              
-               
+
+                print(f"Iteration: [{n_iter + 1}/{len(data_loader_test)}]")              
+
         print('')
-        print("Top 1 error: ", (1 - correct_1 / len(cifar100_test_loader.dataset)).item)
-        print("Top 5 error: ", (1 - correct_5 / len(cifar100_test_loader.dataset)).item)
+        print("Top 1 error: ", (1 - correct_1 / len(data_loader_test.dataset)).item())
+        print("Top 5 error: ", (1 - correct_5 / len(data_loader_test.dataset)).item())
         print("Parameter numbers: {}".format(sum(p.numel() for p in net.parameters())))
         print('')
-        
+
         if settings.USE_GPU:
             print('')
             print(torch.cuda.memory_summary(), end='')
-    
+
     else:
-        print('No pre-trained model found.')
-        
-    
+        print('No pre-trained model found, train a model first.')
+
