@@ -92,7 +92,6 @@ def eval_training(epoch=0):
 if __name__ == '__main__':
 
     # Load Network
-
     from convnet import initialize_network
     net = initialize_network()
     if settings.USE_GPU: 

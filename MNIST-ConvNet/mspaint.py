@@ -25,7 +25,7 @@ def visualize(data):
         plt.yticks([])
 
         image_slice = data[i][0].numpy()
-        plt.imshow(image_slice[0].transpose())
+        plt.imshow(image_slice[0])
     print("Visualizing 25 random samples, close the image to continue...")
     print("")
     plt.show()
@@ -68,7 +68,6 @@ def write_mspaint():
     process.wait()
 
     modified_image = Image.open(image_path)
-    modified_image = modified_image.transpose(Image.TRANSPOSE)
     modified_image = modified_image.convert('L')
     modified_image = transform(modified_image).cuda()
     modified_image = modified_image.unsqueeze(0)
