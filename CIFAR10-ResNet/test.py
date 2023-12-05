@@ -57,12 +57,13 @@ if __name__ == '__main__':
                 correct_1 += correct[:, :1].sum() #compute top 1
                 correct_5 += correct[:, :5].sum() #compute top 5
                 
-                print(f"Iteration: [{n_iter + 1}/{len(cifar100_test_loader)}]")            
-            
-        print()
-        print("Top 1 error: ", 1 - correct_1.item() / len(cifar100_test_loader.dataset))
-        print("Top 5 error: ", 1 - correct_5.item() / len(cifar100_test_loader.dataset))
+                print(f"Iteration: [{n_iter + 1}/{len(cifar100_test_loader)}]")              
+               
+        print('')
+        print("Top 1 error: ", (1 - correct_1 / len(cifar100_test_loader.dataset)).item)
+        print("Top 5 error: ", (1 - correct_5 / len(cifar100_test_loader.dataset)).item)
         print("Parameter numbers: {}".format(sum(p.numel() for p in net.parameters())))
+        print('')
         
         if settings.USE_GPU:
             print('')

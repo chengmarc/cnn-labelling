@@ -1,0 +1,5 @@
+*.pyc
+*.pt
+MNIST-CNN/data
+EMNIST-CNN/data
+CIFAR10-ResNet/data

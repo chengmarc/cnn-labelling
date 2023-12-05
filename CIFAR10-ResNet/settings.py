@@ -2,7 +2,6 @@
 
 author baiyu
 """
-#total training epoches
 
 DATASET = "CIFAR10"
 
