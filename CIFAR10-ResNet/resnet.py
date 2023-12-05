@@ -3,15 +3,15 @@
 @author: chengmarc
 @github: https://github.com/chengmarc
 
-[1] Baiyu @BUPT
-
-    Practice on CIFAR100 using pytorch
-    https://github.com/weiaicunzai/pytorch-cifar100
-
-[2] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun.
+[1] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
 
     Deep Residual Learning for Image Recognition
     https://arxiv.org/abs/1512.03385v1
+
+[2] Baiyu @BUPT
+
+    Practice on CIFAR100 using pytorch
+    https://github.com/weiaicunzai/pytorch-cifar100
 
 """
 import torch.nn as nn

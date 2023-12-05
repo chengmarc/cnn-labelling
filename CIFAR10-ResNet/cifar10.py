@@ -3,6 +3,11 @@
 @author: chengmarc
 @github: https://github.com/chengmarc
 
+[1] Krizhevsky, A., Nair, V. and Hinton, G.
+
+    The CIFAR-10 Dataset
+    https://www.cs.toronto.edu/~kriz/cifar.html
+
 """
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
