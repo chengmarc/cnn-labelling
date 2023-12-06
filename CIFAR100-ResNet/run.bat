@@ -8,8 +8,8 @@ echo.
 echo Virtual environment setup completed.
 echo.
 echo Start training...
-call train.py -W
+call train.py
 pause
 echo Start testing...
-call test.py -W
+call test.py
 pause

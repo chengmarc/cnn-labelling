@@ -20,38 +20,32 @@ import torch.nn as nn
 # %% Class Definitions
 
 
-class BasicBlock(nn.Module):
+class BottleNeck(nn.Module):
     """
-    Basic Block for resnet 18 and resnet 34
+    Residual block for resnet over 50 layers
     """
 
-    #BasicBlock and BottleNeck block
-    #have different output size
-    #we use class attribute expansion
-    #to distinct
-    expansion = 1
+    expansion = 4
 
     def __init__(self, in_channels, out_channels, stride=1):
         super().__init__()
-
-        #residual function
         self.residual_function = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False),
+            nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels * BasicBlock.expansion, kernel_size=3, padding=1, bias=False),
-            nn.BatchNorm2d(out_channels * BasicBlock.expansion)
+            nn.Conv2d(out_channels, out_channels, stride=stride, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_channels, out_channels * BottleNeck.expansion, kernel_size=1, bias=False),
+            nn.BatchNorm2d(out_channels * BottleNeck.expansion),
         )
 
-        #shortcut
         self.shortcut = nn.Sequential()
 
-        #the shortcut output dimension is not the same with residual function
-        #use 1*1 convolution to match the dimension
-        if stride != 1 or in_channels != BasicBlock.expansion * out_channels:
+        if stride != 1 or in_channels != out_channels * BottleNeck.expansion:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels * BasicBlock.expansion, kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(out_channels * BasicBlock.expansion)
+                nn.Conv2d(in_channels, out_channels * BottleNeck.expansion, stride=stride, kernel_size=1, bias=False),
+                nn.BatchNorm2d(out_channels * BottleNeck.expansion)
             )
 
     def forward(self, x):
@@ -121,12 +115,15 @@ class ResNet(nn.Module):
 
 def initialize_network(NET:str):
 
-    if NET not in ["ResNet18", "ResNet34"]:
+    if NET not in ["ResNet50", "ResNet101", "ResNet152"]:
         print("Network not found, adjust settings.")
 
-    elif NET == "ResNet18":
-        return ResNet(BasicBlock, [2, 2, 2, 2])
+    elif NET == "ResNet50":
+        return ResNet(BottleNeck, [3, 4, 6, 3])
 
-    elif NET == "ResNet34":
-        return ResNet(BasicBlock, [3, 4, 6, 3])
+    elif NET == "ResNet101":
+        return ResNet(BottleNeck, [3, 4, 23, 3])
+
+    elif NET == "ResNet152":
+        return ResNet(BottleNeck, [3, 8, 36, 3])
 
