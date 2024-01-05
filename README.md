@@ -1,7 +1,7 @@
 ### Repository Summary ###
 - Task: Computer Vision - Image Labelling
 - Datasets: MNIST, EMNIST, CIFAR10, and CIFAR100
-- Network: ConvNet, ResNet34, and ResNet101
+- Networks: ConvNet, ResNet34, and ResNet101
 
 ### Theoretic Reference ###
 [1] Yann LeCun, Patrick Haffner, Léon Bottou, and Yoshua Bengio.
