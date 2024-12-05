@@ -9,6 +9,10 @@
     http://yann.lecun.com/exdb/publis/pdf/lecun-99.pdf
 
 """
+import os
+script_path = os.path.dirname(os.path.realpath(__file__))
+os.chdir(script_path)
+
 import torch.nn as nn
 
 

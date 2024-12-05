@@ -9,6 +9,10 @@
     https://arxiv.org/pdf/1702.05373v1.pdf
 
 """
+import os
+script_path = os.path.dirname(os.path.realpath(__file__))
+os.chdir(script_path)
+
 from torch.utils.data import DataLoader
 from torchvision.datasets import EMNIST
 import torchvision.transforms as transforms

@@ -4,7 +4,11 @@
 @github: https://github.com/chengmarc
 
 """
-import os, random, subprocess
+import os
+script_path = os.path.dirname(os.path.realpath(__file__))
+os.chdir(script_path)
+
+import random, subprocess
 import torch
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
@@ -71,8 +75,11 @@ def write_mspaint():
     modified_image = Image.open(image_path)
     modified_image = modified_image.transpose(Image.TRANSPOSE)
     modified_image = modified_image.convert('L')
-    modified_image = transform(modified_image).cuda()
+    modified_image = transform(modified_image)
     modified_image = modified_image.unsqueeze(0)
+    
+    if settings.USE_GPU:
+        modified_image = modified_image.cuda()
 
     with torch.no_grad():
         net.eval()

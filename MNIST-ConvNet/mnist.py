@@ -9,6 +9,10 @@
     http://yann.lecun.com/exdb/mnist/
 
 """
+import os
+script_path = os.path.dirname(os.path.realpath(__file__))
+os.chdir(script_path)
+
 from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
 import torchvision.transforms as transforms

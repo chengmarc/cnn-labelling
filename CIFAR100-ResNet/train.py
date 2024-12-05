@@ -9,7 +9,11 @@
     https://github.com/weiaicunzai/pytorch-cifar100
 
 """
-import os, time
+import os
+script_path = os.path.dirname(os.path.realpath(__file__))
+os.chdir(script_path)
+
+import time
 import torch
 import torch.nn as nn
 import torch.optim as optim
