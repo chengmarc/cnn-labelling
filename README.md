@@ -1,5 +1,5 @@
-[![conda - v23.7.3](https://img.shields.io/static/v1?label=conda&message=v23.7.3&color=green&logo=anaconda&logoColor=white)](https://)
 [![python - v3.10.11](https://img.shields.io/static/v1?label=python&message=v3.10.11&color=blue&logo=python&logoColor=white)](https://)
+[![cuda - v11.8](https://img.shields.io/static/v1?label=cuda&message=v11.8&color=green&logo=nvidia&logoColor=white)](https://)
 [![torch - v2.0.1](https://img.shields.io/static/v1?label=torch&message=v2.0.1&color=orange&logo=pytorch&logoColor=white)](https://)
 
 ### Repository Summary ###
